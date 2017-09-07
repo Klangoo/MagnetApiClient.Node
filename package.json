@@ -1,8 +1,8 @@
 {
   "name": "@klangoo/magnetapiclient",
-  "version": "1.0.2",
-  "description": "Magnet API client driver for NodeJS",
-  "main": "magnetapiclient.js",
+  "version": "2.0.0",
+  "description": "Magnet API client for NodeJS",
+  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Klangoo/MagnetApiClient.Node.git"
@@ -16,5 +16,12 @@
   "bugs": {
     "url": "https://github.com/Klangoo/MagnetApiClient.Node/issues"
   },
-  "homepage": "https://github.com/Klangoo/MagnetApiClient.Node#readme"
+  "homepage": "https://github.com/Klangoo/MagnetApiClient.Node#readme",
+  "devDependencies": {
+    "eslint": "^4.6.1"
+  },
+  "dependencies": {
+    "request": "^2.81.0",
+    "request-promise": "^4.2.1"
+  }
 }
