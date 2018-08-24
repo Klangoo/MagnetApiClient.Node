@@ -1,6 +1,6 @@
 {
   "name": "@klangoo/magnetapiclient",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Magnet API client driver for NodeJS",
   "main": "index.js",
   "repository": {
@@ -10,7 +10,7 @@
   "keywords": [
     "Magnet",
     "Klangoo",
-	"API"
+    "API"
   ],
   "author": "Klangoo",
   "license": "MIT",
