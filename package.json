@@ -2,17 +2,18 @@
   "name": "@klangoo/magnetapiclient",
   "version": "1.0.2",
   "description": "Magnet API client driver for NodeJS",
-  "main": "magnetapiclient.js",
+  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Klangoo/MagnetApiClient.Node.git"
   },
   "keywords": [
     "Magnet",
-    "Klangoo"
+    "Klangoo",
+	"API"
   ],
   "author": "Klangoo",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/Klangoo/MagnetApiClient.Node/issues"
   },
