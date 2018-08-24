@@ -4,7 +4,7 @@ var ENDPOINT_URI = "http://magnetapi.klangoo.com/NewsAgencyService.svc";
 var CALK = "ENTER_YOUR_CALK";
 var SECRET_KEY = "ENTER_YOUR_SECRET_KEY";
 
-var MagnetAPIClient = require('magnetapiclient');
+var MagnetAPIClient = require('@klangoo/magnetapiclient');
 var _magnetAPIClient = new MagnetAPIClient(ENDPOINT_URI, CALK, SECRET_KEY);
 
 
@@ -159,11 +159,12 @@ function HandleApiError(response) {
 
 /* End Magnet Sample Functions */
 
-module.exports.RUN = function() {
-  let articleUID = "2017/03/28/example-api-usage";
-  addArticle(articleUID);
-  updateArticle(articleUID);
-  deleteArticle(articleUID);
-  getArticle(articleUID);
-  showIndex();
-}
+//
+// main
+//
+let articleUID = "2017/03/28/example-api-usage";
+addArticle(articleUID);
+updateArticle(articleUID);
+deleteArticle(articleUID);
+getArticle(articleUID);
+showIndex();
