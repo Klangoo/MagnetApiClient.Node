@@ -2,7 +2,7 @@
  * Magnet API Client
  * 
  * dependencies:
- *    require('http')
+ *    require('https')
  *    require('crypto')
  *    require('url')  
  */
@@ -12,30 +12,22 @@
 class MagnetAPIClient {
 
     constructor(endpointUri, calk, secretKey) {
-
-        /* Private Variables */
-        this._calk = null;
-        this._serverAddress = null;
-        this._endpoint = null;
-        this._magnetSigner = null;
-        this._proxy = null;
-        this._http = require('http');
-        /* End Private Variables */
-
         this._calk = calk;
+        this._proxy = null;
+        this._http = require('https');
+        
+        const { URL } = require('url');
+        const endpointURL = new URL(endpointUri);
+        this._serverAddress = endpointURL.hostname;
+        this._endpoint = endpointURL.pathname;
 
-        var urlParser = require('url');
-        this._serverAddress = urlParser.parse(endpointUri).hostname;
-        this._endpoint = urlParser.parse(endpointUri).path;
-
-
+        this._magnetSigner = null;
         if (secretKey) {
             this._magnetSigner = new MagnetSigner(endpointUri, secretKey);
         }
     }
 
     CallWebMethod(methodName, request, requestMethod, callback, signRequest = true) {
-
         //add calk to request, if it does not exist.
         if (!this.RequestHasCalk(request)) {
             //request is Query String
@@ -65,10 +57,8 @@ class MagnetAPIClient {
     }
 
     CallWebMethod__(methodName, queryString, requestMethod, callback) {
-
         let upperRequestMethod = requestMethod.toUpperCase();
         if (upperRequestMethod == "GET" || upperRequestMethod == "POST") {
-
             var magRequest = this._http.request({
                 host: this._serverAddress,
                 path: this._endpoint + '/' + (upperRequestMethod == "GET" ? methodName + '?' + queryString : methodName),
@@ -87,12 +77,10 @@ class MagnetAPIClient {
                 });
             });
         }
-
         if (upperRequestMethod == "POST") {
-            let buffer = new Buffer(this.GetBytes(queryString));
+            let buffer = new Buffer.from(this.GetBytes(queryString));
             magRequest.write(buffer);
         }
-
         magRequest.end();
     }
 
@@ -115,19 +103,14 @@ class MagnetAPIClient {
                     }
                 }
             }
-
             return calkFound;
         }
-
         return false;
     }
 
     ConstructQueryString(request) {
-
         let queryString = "";
-
         if (request && Object.keys(request).length > 0) {
-
             for (let property in request) {
                 if (request.hasOwnProperty(property)) {
                     queryString += this.PercentEncodeRfc3986(property);
@@ -136,10 +119,8 @@ class MagnetAPIClient {
                     queryString += "&";
                 }
             }
-
             queryString = queryString.substring(0, queryString.length - 1);
         }
-
         return queryString;
     }
 
@@ -161,16 +142,11 @@ class MagnetAPIClient {
     }
 
     GetBytes(str) {
-
-        var bytes = [],
-            char;
+        let bytes = [], char;
         str = encodeURI(str);
-
         while (str.length) {
-
             char = str.slice(0, 1);
             str = str.slice(1);
-
             if ('%' !== char) {
                 bytes.push(char.charCodeAt(0));
             } else {
@@ -179,29 +155,22 @@ class MagnetAPIClient {
                 bytes.push(parseInt(char, 16));
             }
         }
-
         return bytes;
     }
-
 }
 
 class MagnetSigner {
 
     constructor(endpointUri, secretKey) {
-
-        /* Private Variables */
         this._endpointUri = null;
         this._secretKey = null;
         this._hmac = null;
         this._crypto = require("crypto");
-        /* End Private Variables */
-
         this._endpointUri = endpointUri;
-        this._secretKey = new Buffer(this.GetBytes(secretKey));
+        this._secretKey = new Buffer.from(this.GetBytes(secretKey));
     }
 
     GetSignatureUsingCanonicalQueryString(methodName, canonicalQueryString, requestMethod) {
-
         let stringToSign = requestMethod.toLowerCase() +
             '\n' +
             this._endpointUri.toLowerCase() +
@@ -211,14 +180,13 @@ class MagnetSigner {
             canonicalQueryString;
 
         let toSignBytes = this.GetBytes(stringToSign);
-        let toSignBuffer = new Buffer(toSignBytes);
+        let toSignBuffer = new Buffer.from(toSignBytes);
 
         let signature = this._crypto.createHmac('sha256', this._secretKey).update(toSignBuffer).digest('base64');
         return this.PercentEncodeRfc3986(signature);
     }
 
     GetSignedQueryString(methodName, request, requestMethod) {
-
         let requestObj = null;
         //request is Query String
         if (typeof request == "string") {
@@ -230,7 +198,6 @@ class MagnetSigner {
 
         requestObj["timestamp"] = this.GetTimestamp();
         requestObj = this.SortObj(requestObj);
-
 
         let canonicalQueryString = this.ConstructCanonicalQueryString(requestObj);
         let signature = this.GetSignatureUsingCanonicalQueryString(methodName, canonicalQueryString, requestMethod);
@@ -257,16 +224,11 @@ class MagnetSigner {
     }
 
     GetBytes(str) {
-
-        var bytes = [],
-            char;
+        var bytes = [], char;
         str = encodeURI(str);
-
         while (str.length) {
-
             char = str.slice(0, 1);
             str = str.slice(1);
-
             if ('%' !== char) {
                 bytes.push(char.charCodeAt(0));
             } else {
@@ -275,39 +237,29 @@ class MagnetSigner {
                 bytes.push(parseInt(char, 16));
             }
         }
-
         return bytes;
     }
 
     CreateRequestObject(queryString) {
-
-        var vars = {},
-            hash;
+        var vars = {}, hash;
         var hashes = queryString.slice(queryString.indexOf('?') + 1).split('&');
-
         for (var i = 0; i < hashes.length; i++) {
             hash = hashes[i].split('=');
-            vars[hash[0]] = unescape(hash[1]);
+            vars[hash[0]] = decodeURIComponent(hash[1]);
         }
-
         return vars;
     }
 
     SortObj(unsortedObject) {
-
         let sortedKeys = [];
         for (var key in unsortedObject) {
             sortedKeys[sortedKeys.length] = key;
         }
-
         sortedKeys.sort(); //ASCII sort
-
         let sortedObject = {};
-
         for (var i = 0; i < sortedKeys.length; i++) {
             sortedObject[sortedKeys[i]] = unsortedObject[sortedKeys[i]];
         }
-
         return sortedObject;
     }
 
@@ -323,9 +275,7 @@ class MagnetSigner {
     }
 
     ConstructCanonicalQueryString(sortedRequestObject) {
-
         let queryString = "";
-
         if (sortedRequestObject && Object.keys(sortedRequestObject).length > 0) {
 
             for (let property in sortedRequestObject) {
@@ -336,13 +286,10 @@ class MagnetSigner {
                     queryString += "&";
                 }
             }
-
             queryString = queryString.substring(0, queryString.length - 1);
         }
-
         return queryString;
     }
-
 }
 
 // export the class
