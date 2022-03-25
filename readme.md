@@ -6,24 +6,14 @@
 * [Installation](#installation)
 * [Usage](#usage)
 
-
 <a name="about"></a>
 # About
 
-Magnet offers online publishers and digital content providers with the following features to help them better engage their users on their website and mobile App.
-- Topically Related Articles
-- Personalized Recommendations
-- Automatically Generated Summary
-- Follow a Specific Topic
-- Follow a Developing Story
-- Meta Tags/Description
-- Highlight Named-Entities
-- Entity Listing
-- Entity Pages
+Klangoo NLP API is a natural language processing (NLP) service that uses the rule-based paradigm and machine learning to recognize the aboutness of text. The service recognizes the category of the text, extracts key disambiguated topics, places, people, brands, events, and 41 other types of names; analyzes text using tokenization, parts of speech, parsing, word sense disambiguation, named entity recognition; and automatically finds the relatedness score between documents.
 
-[Read More](http://www.klangoo.com/Engagement.aspx).
+[Read More](https://klangoosupport.zendesk.com/hc/en-us/categories/360000812171-Klangoo-Natural-Language-API).
 
-[Book a demo with our sales team now!](mailto:sales@klangoo.com)
+[Signup for a free trail](https://connect.klangoo.com/pub/Signup/)
 
 <a name="installation"></a>
 # Installation
@@ -31,8 +21,8 @@ Magnet offers online publishers and digital content providers with the following
 ## Prerequisites
 
 - [NodeJS](https://nodejs.org/en/download/)
-- An API Key Provided by [Klangoo](http://klangoo.com)
-- An API Secret Provided by [Klangoo](http://klangoo.com)
+- An API Key Provided by [Klangoo](https://klangoosupport.zendesk.com/hc/en-us/articles/360015236872-Step-2-Registering-to-Klangoo-NLP-API)
+- An API Secret Provided by [Klangoo](https://klangoosupport.zendesk.com/hc/en-us/articles/360015236872-Step-2-Registering-to-Klangoo-NLP-API)
 
 
 ## Install
@@ -44,12 +34,12 @@ $ npm install @klangoo/magnetapiclient
 ```
 
 Once you have the Magnet API Client properly referenced in your project, you can start sending calls to the API in your code.
-For sample implementations, check the [news agency sample](https://github.com/Klangoo/MagnetApiClient.Node/blob/master/newsagencysample.js).
+For sample implementations, check the [NLP sample](https://github.com/Klangoo/MagnetApiClient.Node/blob/master/nlpsample.js).
 
 ## Dependencies
 
 Magnet API Client uses the following Node built in Libraries:
-- [HTTP](https://nodejs.org/api/http.html)
+- [HTTPS](https://nodejs.org/api/https.html)
 - [Crypto](https://nodejs.org/api/crypto.html)
 - [URL](https://nodejs.org/api/url.html)
 
@@ -57,79 +47,69 @@ Magnet API Client uses the following Node built in Libraries:
 <a name="usage"></a>
 # Usage
 
-## Get Article
+This quick start tutorial will show you how to process a text
 
-The following is an example for reading an article from the API:
+## Initialize the client
 
-```javascript
-function getArticle(articleUID) {
-	let request = {}; //request json object (key / value) will handle all the request parameters.
-	request.articleUID = articleUID;
-	request.format = "json";
-  
-	//instance of the magnetapiclient 
-	var MagnetAPIClient = require("@klangoo/magnetapiclient");
-	var _magnetAPIClient = new MagnetAPIClient(ENDPOINT_URI, CALK, SECRET_KEY);
-
-	try {
-		_magnetAPIClient.CallWebMethod("GetArticle", request, "GET", function (data) {
-
-			let parsedResult = JSON.parse(data);
-
-			console.log("GetArticle: ");
-
-			if (parsedResult.status == "OK") {
-				console.log("Success", parsedResult);
-			}
-			else {
-				HandleApiError(parsedResult);
-			}
-		});
-	}
-	catch (error) {
-		console.log("Exception occured: ", error);
-	}
-}
-```
-
-## Add Article
-The same applies for posting or updating an article. following is an example for adding an article:
+To begin, you will need to initialize the client. In order to do this you will need your API Key **CALK** and **Secret Key**.
+You can find both on [your Klangoo account](https://connect.klangoo.com/).
 
 ```javascript
-function getArticle(articleUID) {
-	let request = {}; //request json object (key / value) will handle all the request parameters.
-	request.text = "SAMPLE ARTICLE TEXT";
-	request.title = "SAMPLE ARTICLE TITLE";
-	request.insertDate = "23 JAN 2017 10:12:00 +01:00"; //article date
-	request.url = "http://demo.klangoo.com/article-demo/api-example";
-	request.articleUID = articleUID;
-	request.source = "klangoo.com";
-	request.language = "en";
-	request.format = "json";
-  
-	//instance of the magnetapiclient 
-	var MagnetAPIClient =  require("@klangoo/magnetapiclient");
-	var _magnetAPIClient = new MagnetAPIClient(ENDPOINT_URI, CALK, SECRET_KEY);
+let MagnetAPIClient = require('@klangoo/magnetapiclient');
 
-	try {
-		_magnetAPIClient.CallWebMethod("addArticle", request, "POST", function (data) {
+let ENDPOINT = "https://nlp.klangoo.com/Service.svc";
+let CALK = "ENTER_YOUR_CALK";
+let SECRET_KEY = "ENTER_YOUR_SECRET_KEY";
 
-			let parsedResult = JSON.parse(data);
+let client = new MagnetAPIClient(ENDPOINT, CALK, SECRET_KEY);
 
-			console.log("GetArticle: ");
+function callAPI_Callback(methodName) {
+	let request = { "text" : "Real Madrid transfer news",
+                "lang" : "en",
+                "format" : "json" };
 
-			if (parsedResult.status == "OK") {
-				console.log("Success", parsedResult);
-			}
-			else {
-				HandleApiError(parsedResult);
-			}
+	client.CallWebMethod(methodName, request, "POST",
+		function (json) {
+			console.log("\ncallAPI_Callback(" + methodName + "):");
+			console.log(json);
 		});
-	}
-	catch (error) {
-		console.log("Exception occured: ", error);
-	}
 }
+
+function callAPI_Promise(methodName) {
+    let request = { "text" : "Real Madrid transfer news",
+                "lang" : "en",
+                "format" : "json" };
+
+    client.CallWebMethod("ProcessDocument", request, "POST").then(function(json) {
+		console.log("\ncallAPI_Promise(" + methodName + "):");
+        console.log(json); 
+    }, function(err) {
+        console.log("Error occurred: " + err); 
+    });
+}
+
+async function callAPI_Async(methodName) {
+    let request = { "text" : "Real Madrid transfer news",
+                "lang" : "en",
+                "format" : "json" };
+    try {
+        let json = await client.CallWebMethod("ProcessDocument", request, "POST");
+        console.log("\ncallAPI_Async(" + methodName + "):");
+        console.log(json);
+    }catch(err){
+        console.log("Error occurred: " + err); 
+    }
+}
+
+
+//
+// main
+//
+callAPI_Callback("ProcessDocument");
+
+callAPI_Promise("ProcessDocument");
+
+callAPI_Async("ProcessDocument");
 ```
 
-You can find an example implementation for all of the API calls here [here](https://github.com/Klangoo/MagnetApiClient.Node/blob/master/newsagencysample.js).
+

@@ -27,7 +27,26 @@ class MagnetAPIClient {
         }
     }
 
-    CallWebMethod(methodName, request, requestMethod, callback, signRequest = true) {
+    CallWebMethod(methodName, request, requestMethod, callback = null, signRequest = true){
+        if (callback === undefined || callback === null){
+            let thisClass = this;
+            return new Promise(function(resolve, reject) {
+                try {
+                    thisClass.CallWebMethod___(methodName, request, requestMethod,
+                        function (json) {
+                            resolve(json);
+                        }, signRequest
+                    );
+                }catch(e){
+                    reject(e);
+                }
+            });
+        }else{
+            this.CallWebMethod___(methodName, request, requestMethod, callback, signRequest);
+        }
+    }
+
+    CallWebMethod___(methodName, request, requestMethod, callback, signRequest) {
         //add calk to request, if it does not exist.
         if (!this.RequestHasCalk(request)) {
             //request is Query String
@@ -58,8 +77,9 @@ class MagnetAPIClient {
 
     CallWebMethod__(methodName, queryString, requestMethod, callback) {
         let upperRequestMethod = requestMethod.toUpperCase();
+        let magRequest = null;
         if (upperRequestMethod == "GET" || upperRequestMethod == "POST") {
-            var magRequest = this._http.request({
+            magRequest = this._http.request({
                 host: this._serverAddress,
                 path: this._endpoint + '/' + (upperRequestMethod == "GET" ? methodName + '?' + queryString : methodName),
                 method: upperRequestMethod,
@@ -224,7 +244,7 @@ class MagnetSigner {
     }
 
     GetBytes(str) {
-        var bytes = [], char;
+        let bytes = [], char;
         str = encodeURI(str);
         while (str.length) {
             char = str.slice(0, 1);
@@ -241,9 +261,9 @@ class MagnetSigner {
     }
 
     CreateRequestObject(queryString) {
-        var vars = {}, hash;
-        var hashes = queryString.slice(queryString.indexOf('?') + 1).split('&');
-        for (var i = 0; i < hashes.length; i++) {
+        let vars = {}, hash;
+        let hashes = queryString.slice(queryString.indexOf('?') + 1).split('&');
+        for (let i = 0; i < hashes.length; i++) {
             hash = hashes[i].split('=');
             vars[hash[0]] = decodeURIComponent(hash[1]);
         }
@@ -252,12 +272,12 @@ class MagnetSigner {
 
     SortObj(unsortedObject) {
         let sortedKeys = [];
-        for (var key in unsortedObject) {
+        for (let key in unsortedObject) {
             sortedKeys[sortedKeys.length] = key;
         }
         sortedKeys.sort(); //ASCII sort
         let sortedObject = {};
-        for (var i = 0; i < sortedKeys.length; i++) {
+        for (let i = 0; i < sortedKeys.length; i++) {
             sortedObject[sortedKeys[i]] = unsortedObject[sortedKeys[i]];
         }
         return sortedObject;
